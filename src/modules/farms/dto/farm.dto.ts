@@ -1,5 +1,5 @@
 import { Expose, plainToClass, Transform } from "class-transformer";
-import { User } from "../../users/entities/user.entity";
+import { Farm } from "../entities/farm.entity";
 
 /**
  * @openapi
@@ -10,27 +10,28 @@ import { User } from "../../users/entities/user.entity";
  *      properties:
  *        id:
  *          type: string
- *        email:
- *          type: string
  *        address:
  *          type: string
  *        coordinates:
  *          type: string
- *        createdAt:
+ *        name:
  *          type: string
+ *        size:
+ *          type: number
+ *        userId:
+ *          type: string
+ *        createdAt:
+ *           type: string
  *        updatedAt:
  *          type: string
  */
-export class UserDto {
-  constructor(partial?: Partial<UserDto>) {
+export class FarmDto {
+  constructor(partial?: Partial<FarmDto>) {
     Object.assign(this, partial);
   }
 
   @Expose()
   public readonly id: string;
-
-  @Expose()
-  public email: string;
 
   @Transform(({ value }) => (value as string) || "")
   @Expose()
@@ -40,6 +41,18 @@ export class UserDto {
   @Expose()
   public coordinates?: string;
 
+  @Expose()
+  public name: string;
+
+  @Expose()
+  public size: number;
+
+  @Expose()
+  public userId: string;
+
+  @Expose()
+  public yield: number;
+
   @Transform(({ value }) => (value as Date).toISOString())
   @Expose()
   public createdAt: Date;
@@ -48,11 +61,11 @@ export class UserDto {
   @Expose()
   public updatedAt: Date;
 
-  public static createFromEntity(user: User | null): UserDto | null {
-    if (!user) {
+  public static createFromEntity(farm: Farm | null): FarmDto | null {
+    if (!farm) {
       return null;
     }
 
-    return plainToClass(UserDto, user);
+    return plainToClass(FarmDto, farm);
   }
 }
