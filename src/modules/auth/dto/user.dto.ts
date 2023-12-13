@@ -1,4 +1,4 @@
-import { Expose, Transform } from "class-transformer";
+import { Expose, plainToClass, Transform } from "class-transformer";
 import { User } from "../../users/entities/user.entity";
 
 /**
@@ -28,6 +28,14 @@ export class UserDto {
   @Expose()
   public email: string;
 
+  @Transform(({ value }) => (value as string) || "")
+  @Expose()
+  public address?: string;
+
+  @Transform(({ value }) => (value as string)?.replace(/[()]/g, "") || "")
+  @Expose()
+  public coordinates?: string;
+
   @Transform(({ value }) => (value as Date).toISOString())
   @Expose()
   public createdAt: Date;
@@ -41,6 +49,6 @@ export class UserDto {
       return null;
     }
 
-    return new UserDto({ ...user });
+    return plainToClass(UserDto, user);
   }
 }

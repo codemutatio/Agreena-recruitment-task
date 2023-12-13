@@ -5,9 +5,11 @@ import { setupServer } from "server/server";
 import { clearDatabase, disconnectAndClearDatabase } from "helpers/utils";
 import http, { Server } from "http";
 import ds from "orm/orm.config";
+import { v4 as uuidv4 } from "uuid";
 import { CreateUserDto } from "../dto/create-user.dto";
 import { User } from "../entities/user.entity";
 import { UsersService } from "../users.service";
+import { UpdateUserLocationDataDto } from "../dto/update-userLocationData.dto";
 
 describe("UsersController", () => {
   let app: Express;
@@ -50,6 +52,29 @@ describe("UsersController", () => {
           expect(error).toBeInstanceOf(UnprocessableEntityError);
           expect(error.message).toBe("A user for the email already exists");
         });
+      });
+    });
+  });
+
+  describe(".updateUserLocationProperties", () => {
+    const createUserDto: CreateUserDto = { email: "user@test.com", password: "password" };
+    const updateUserLocationDto: UpdateUserLocationDataDto = {
+      address: "test address",
+      coordinates: "52.670925580780214, 10.582320297150432",
+    };
+
+    it("should update user with location properties", async () => {
+      const user = await usersService.createUser(createUserDto);
+      const updatedUser = await usersService.updateUserLocation(user.id, updateUserLocationDto);
+
+      expect(updatedUser.address).toBe(updateUserLocationDto.address);
+      expect(updatedUser.coordinates).toBe(`(${updateUserLocationDto.coordinates})`);
+    });
+
+    it("should throw UnprocessableEntityError if user not found", () => {
+      usersService.updateUserLocation(uuidv4(), updateUserLocationDto).catch((error: UnprocessableEntityError) => {
+        expect(error).toBeInstanceOf(UnprocessableEntityError);
+        expect(error.message).toBe("No existing user with this ID");
       });
     });
   });

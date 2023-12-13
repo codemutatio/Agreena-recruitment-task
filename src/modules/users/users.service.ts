@@ -5,6 +5,7 @@ import { DeepPartial, FindOptionsWhere, Repository } from "typeorm";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { User } from "./entities/user.entity";
 import dataSource from "orm/orm.config";
+import { UpdateUserLocationDataDto } from "./dto/update-userLocationData.dto";
 
 export class UsersService {
   private readonly usersRepository: Repository<User>;
@@ -25,6 +26,18 @@ export class UsersService {
 
     const newUser = this.usersRepository.create(userData);
     return this.usersRepository.save(newUser);
+  }
+
+  public async updateUserLocation(userId: string, data: UpdateUserLocationDataDto): Promise<User> {
+    const { address, coordinates } = data;
+
+    const existingUser = await this.findOneBy({ id: userId });
+    if (!existingUser) throw new UnprocessableEntityError("No existing user with this ID");
+
+    existingUser.address = address;
+    existingUser.coordinates = `(${coordinates})`;
+
+    return this.usersRepository.save(existingUser);
   }
 
   public async findOneBy(param: FindOptionsWhere<User>): Promise<User | null> {
