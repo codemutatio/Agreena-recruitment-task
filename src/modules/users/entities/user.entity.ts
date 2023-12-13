@@ -1,4 +1,6 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+
+import { Farm } from "modules/farms/entities/farm.entity";
 
 @Entity()
 export class User {
@@ -22,4 +24,7 @@ export class User {
 
   @UpdateDateColumn()
   public updatedAt: Date;
+
+  @OneToMany(() => Farm, farm => farm.user, { cascade: true })
+  public farms: Farm[];
 }
