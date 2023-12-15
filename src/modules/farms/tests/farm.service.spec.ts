@@ -9,7 +9,7 @@ import { Farm } from "../entities/farm.entity";
 import { FarmsService } from "../farms.service";
 import { CreateUserDto } from "../../users/dto/create-user.dto";
 import { UsersService } from "../../users/users.service";
-import { GetFarmsQueryDto } from "../dto/get-farmsQuery.dto";
+import { FilterBy, GetFarmsQueryDto, SortBy, SortOrder } from "../dto/get-farmsQuery.dto";
 import { plainToClass } from "class-transformer";
 import { GetFarmDto } from "../dto/get-farms.dto";
 import { UpdateUserLocationDataDto } from "modules/users/dto/update-userLocationData.dto";
@@ -36,6 +36,14 @@ describe("FarmsService", () => {
     size: 80,
     userId: "",
     yield: 45.76,
+  };
+  const createFarm3Dto: CreateFarmDto = {
+    name: "Farm 3",
+    address: "Farm 3 address",
+    coordinates: "52.71087112646539, 10.622277381808696",
+    size: 350.6,
+    userId: "",
+    yield: 180.5,
   };
 
   beforeAll(async () => {
@@ -64,20 +72,6 @@ describe("FarmsService", () => {
       createFarm1Dto.userId = createdUser.id;
       const createdFarm = await farmsService.createFarm(createFarm1Dto);
       expect(createdFarm).toBeInstanceOf(Farm);
-    });
-  });
-
-  describe(".getAverageYield", () => {
-    it("should get average yield of farma", async () => {
-      const createdUser = await usersService.createUser(createUserDto);
-
-      createFarm1Dto.userId = createdUser.id;
-      createFarm2Dto.userId = createdUser.id;
-      await Promise.all([farmsService.createFarm(createFarm1Dto), farmsService.createFarm(createFarm2Dto)]);
-      const averageYield = await farmsService.getAverageYield();
-
-      expect(typeof averageYield).toBe("number");
-      expect(averageYield).toBe((createFarm1Dto.yield + createFarm2Dto.yield) / 2);
     });
   });
 
@@ -110,12 +104,80 @@ describe("FarmsService", () => {
       const createdUser = await usersService.createUser(createUserDto);
       await usersService.updateUserLocation(createdUser.id, updateUserLocationDto);
 
-      // Create a GetFarmsQueryDto object
       const getFarmsQueryDto: GetFarmsQueryDto = plainToClass(GetFarmsQueryDto, { userId: createdUser.id });
 
       const farms = await farmsService.getFarms(getFarmsQueryDto);
       expect(farms).toBeDefined();
       expect(farms.length).toBe(0);
+    });
+
+    it("should sort farms by distance", async () => {
+      const createdUser = await usersService.createUser(createUserDto);
+      createFarm1Dto.userId = createdUser.id;
+      createFarm2Dto.userId = createdUser.id;
+      createFarm3Dto.userId = createdUser.id;
+      await Promise.all([
+        farmsService.createFarm(createFarm1Dto),
+        farmsService.createFarm(createFarm2Dto),
+        farmsService.createFarm(createFarm3Dto),
+        usersService.updateUserLocation(createdUser.id, updateUserLocationDto),
+      ]);
+
+      const getFarmsQueryDto: GetFarmsQueryDto = plainToClass(GetFarmsQueryDto, {
+        userId: createdUser.id,
+        sortBy: SortBy.DISTANCE,
+      });
+
+      const farms = await farmsService.getFarms(getFarmsQueryDto);
+      expect(farms[0].name).toBe(createFarm3Dto.name);
+      expect(farms[0].drivingDistance).toBeDefined();
+    });
+
+    it("should filter by outliers set to false", async () => {
+      const createdUser = await usersService.createUser(createUserDto);
+      createFarm1Dto.userId = createdUser.id;
+      createFarm2Dto.userId = createdUser.id;
+      createFarm3Dto.userId = createdUser.id;
+      await Promise.all([
+        farmsService.createFarm(createFarm1Dto),
+        farmsService.createFarm(createFarm2Dto),
+        farmsService.createFarm(createFarm3Dto),
+        usersService.updateUserLocation(createdUser.id, updateUserLocationDto),
+      ]);
+
+      const getFarmsQueryDto: GetFarmsQueryDto = plainToClass(GetFarmsQueryDto, {
+        userId: createdUser.id,
+        sortBy: SortBy.DISTANCE,
+        filterBy: FilterBy.OUTLIERS,
+        filterValue: "false",
+      });
+
+      const farms = await farmsService.getFarms(getFarmsQueryDto);
+      expect(farms.length).toBe(1);
+    });
+
+    it("should filter by outliers set to true", async () => {
+      const createdUser = await usersService.createUser(createUserDto);
+      createFarm1Dto.userId = createdUser.id;
+      createFarm2Dto.userId = createdUser.id;
+      createFarm3Dto.userId = createdUser.id;
+      await Promise.all([
+        farmsService.createFarm(createFarm1Dto),
+        farmsService.createFarm(createFarm2Dto),
+        farmsService.createFarm(createFarm3Dto),
+        usersService.updateUserLocation(createdUser.id, updateUserLocationDto),
+      ]);
+
+      const getFarmsQueryDto: GetFarmsQueryDto = plainToClass(GetFarmsQueryDto, {
+        userId: createdUser.id,
+        sortBy: SortBy.DISTANCE,
+        sortOrder: SortOrder.DESC,
+        filterBy: FilterBy.OUTLIERS,
+        filterValue: "true",
+      });
+
+      const farms = await farmsService.getFarms(getFarmsQueryDto);
+      expect(farms.length).toBe(2);
     });
   });
 });

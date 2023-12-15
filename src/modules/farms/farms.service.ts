@@ -28,15 +28,6 @@ export class FarmsService {
     return this.farmsRepository.save(newFarm);
   }
 
-  public async getAverageYield(): Promise<number> {
-    const averageResult = (await this.farmsRepository
-      .createQueryBuilder("farm")
-      .select("ROUND(AVG(farm.yield)::numeric, 2)", "averageYield")
-      .getRawOne()) as { averageYield: string };
-
-    return +averageResult.averageYield;
-  }
-
   public async getFarms(data: GetFarmsQueryDto): Promise<GetFarmDto[]> {
     const currentUser = await this.usersService.findOneBy({ id: data.userId });
 
@@ -65,6 +56,15 @@ export class FarmsService {
     return enhancedFarms;
   }
 
+  private async getAverageYield(): Promise<number> {
+    const averageResult = (await this.farmsRepository
+      .createQueryBuilder("farm")
+      .select("ROUND(AVG(farm.yield)::numeric, 2)", "averageYield")
+      .getRawOne()) as { averageYield: string };
+
+    return +averageResult.averageYield;
+  }
+
   private async buildGetFarmsQuery(userCoordinates: string, data: GetFarmsQueryDto) {
     const { filterBy, filterValue, page, size, sortBy, sortOrder } = data;
     let query = this.farmsRepository
@@ -72,6 +72,7 @@ export class FarmsService {
       .leftJoinAndSelect("farm.user", "user")
       .select([
         "farm.id",
+        "farm.userId",
         "farm.name",
         "farm.address",
         "farm.size",
@@ -130,7 +131,7 @@ export class FarmsService {
     });
 
     // This returns the distance in meters, so we divide by 1000 to get the distance in kilometers
-    return response.data.rows[0].elements.map(element => (element.distance.value || 0) / 1000);
+    return response.data.rows[0].elements.map(element => (element.distance.value) / 1000);
   }
   private enhanceAndTransformFarms({ farms, drivingDistances }: { farms: Farm[]; drivingDistances: number[] }): GetFarmDto[] {
     return farms.map((farm, index) => {

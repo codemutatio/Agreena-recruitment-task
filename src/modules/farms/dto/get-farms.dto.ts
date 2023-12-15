@@ -7,9 +7,15 @@ import { Expose, Transform } from "class-transformer";
  *    GetFarmDto:
  *      type: object
  *      properties:
+ *        id:
+ *          type: string
+ *          description: The id of the farm.
  *        name:
  *          type: string
  *          description: The name of the farm.
+ *        userId:
+ *          type: string
+ *          description: The id of the farm owner.
  *        address:
  *          type: string
  *          description: The physical address of the farm.
@@ -34,6 +40,9 @@ import { Expose, Transform } from "class-transformer";
 export class GetFarmDto {
   @Expose()
   public readonly id: string;
+
+  @Expose()
+  public readonly userId: string;
 
   @Expose()
   public name: string;
