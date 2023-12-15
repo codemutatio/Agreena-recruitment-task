@@ -11,7 +11,7 @@ export class User {
   public address: string;
 
   @Column({ type: "point", nullable: true })
-  public coordinates: string;
+  public coordinates: string | { x: number; y: number };
 
   @Column({ unique: true })
   public email: string;

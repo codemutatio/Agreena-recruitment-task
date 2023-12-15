@@ -11,7 +11,7 @@ export class Farm {
   public address: string;
 
   @Column({ type: "point" })
-  public coordinates: string;
+  public coordinates: string | { x: number; y: number };
 
   @Column()
   public name: string;

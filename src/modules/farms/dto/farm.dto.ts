@@ -5,7 +5,7 @@ import { Farm } from "../entities/farm.entity";
  * @openapi
  * components:
  *  schemas:
- *    UserDto:
+ *    FarmDto:
  *      type: object
  *      properties:
  *        id:

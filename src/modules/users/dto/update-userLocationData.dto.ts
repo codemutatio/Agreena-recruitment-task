@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsLatLong } from "class-validator";
+import { IsLatLong, IsNotEmpty, IsString } from "class-validator";
 
 /**
  * @openapi
