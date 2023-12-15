@@ -5,11 +5,10 @@ import { clearDatabase, disconnectAndClearDatabase } from "helpers/utils";
 import http, { Server } from "http";
 import ds from "orm/orm.config";
 import supertest, { SuperAgentTest } from "supertest";
-import { v4 as uuidv4 } from "uuid";
 import { CreateUserDto } from "../dto/create-user.dto";
 import { UpdateUserLocationDataDto } from "../dto/update-userLocationData.dto";
 import { UsersService } from "../users.service";
-import { User } from "../entities/user.entity";
+import { AuthService } from "modules/auth/auth.service";
 
 describe("UsersController", () => {
   let app: Express;
@@ -17,6 +16,8 @@ describe("UsersController", () => {
   let server: Server;
 
   let usersService: UsersService;
+  let authService: AuthService;
+  const createUserDto: CreateUserDto = { email: "userToUpdate@test.com", password: "password" };
 
   beforeAll(async () => {
     app = setupServer();
@@ -34,6 +35,7 @@ describe("UsersController", () => {
     await clearDatabase(ds);
 
     agent = supertest.agent(app);
+    authService = new AuthService();
     usersService = new UsersService();
   });
 
@@ -65,33 +67,39 @@ describe("UsersController", () => {
     });
   });
 
-  describe("POST /users/:userId/location", () => {
+  describe("POST /users/location", () => {
     const createUser = async (userDto: CreateUserDto) => usersService.createUser(userDto);
-    const createUserDto: CreateUserDto = { email: "userToUpdate@test.com", password: "password" };
+    const loginUser = async (userDto: CreateUserDto) => authService.login(userDto);
     const updateUserLocationPropertiesDto: UpdateUserLocationDataDto = {
       address: "Test Address",
       coordinates: "52.670925580780214, 10.582320297150432",
     };
 
     it("should update existing user", async () => {
-      const { id } = await createUser(createUserDto);
+      await createUser(createUserDto);
+      const { token } = await loginUser(createUserDto);
 
-      const res = await agent.post(`/api/users/${id}/location`).send(updateUserLocationPropertiesDto);
-      const user = res.body as User;
+      const res = await agent
+        .post("/api/users/location")
+        .set("Authorization", `Bearer ${token}`)
+        .send(updateUserLocationPropertiesDto);
 
       expect(res.statusCode).toBe(201);
-      expect(user).toBeDefined();
-      expect(user.address).toBe(updateUserLocationPropertiesDto.address);
-      expect(user.coordinates).toBe(updateUserLocationPropertiesDto.coordinates);
+      expect(res.text).toEqual("User updated successfully");
     });
 
-    it("should throw UnprocessableEntityError when updating user that does not exists", async () => {
-      const res = await agent.post(`/api/users/${uuidv4()}/location`).send(updateUserLocationPropertiesDto);
+    it("should throw Internal server error if passed with invalid coordinates", async () => {
+      await createUser(createUserDto);
+      const { token } = await loginUser(createUserDto);
 
-      expect(res.statusCode).toBe(422);
+      const res = await agent
+        .post("/api/users/location")
+        .set("Authorization", `Bearer ${token}`)
+        .send({ ...updateUserLocationPropertiesDto, coordinates: "invalid coordinates" });
+
+      expect(res.statusCode).toBe(500);
       expect(res.body).toMatchObject({
-        name: "UnprocessableEntityError",
-        message: "No existing user with this ID",
+        message: "Internal Server Error",
       });
     });
   });

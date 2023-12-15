@@ -5,7 +5,6 @@ import { setupServer } from "server/server";
 import { clearDatabase, disconnectAndClearDatabase } from "helpers/utils";
 import http, { Server } from "http";
 import ds from "orm/orm.config";
-import { v4 as uuidv4 } from "uuid";
 import { CreateUserDto } from "../dto/create-user.dto";
 import { User } from "../entities/user.entity";
 import { UsersService } from "../users.service";
@@ -69,13 +68,6 @@ describe("UsersController", () => {
 
       expect(updatedUser.address).toBe(updateUserLocationDto.address);
       expect(updatedUser.coordinates).toBe(`(${updateUserLocationDto.coordinates})`);
-    });
-
-    it("should throw UnprocessableEntityError if user not found", () => {
-      usersService.updateUserLocation(uuidv4(), updateUserLocationDto).catch((error: UnprocessableEntityError) => {
-        expect(error).toBeInstanceOf(UnprocessableEntityError);
-        expect(error.message).toBe("No existing user with this ID");
-      });
     });
   });
 

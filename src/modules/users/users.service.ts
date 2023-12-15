@@ -31,13 +31,7 @@ export class UsersService {
   public async updateUserLocation(userId: string, data: UpdateUserLocationDataDto): Promise<User> {
     const { address, coordinates } = data;
 
-    const existingUser = await this.findOneBy({ id: userId });
-    if (!existingUser) throw new UnprocessableEntityError("No existing user with this ID");
-
-    existingUser.address = address;
-    existingUser.coordinates = `(${coordinates})`;
-
-    return this.usersRepository.save(existingUser);
+    return this.usersRepository.save({ id: userId, address, coordinates: `(${coordinates})` });
   }
 
   public async findOneBy(param: FindOptionsWhere<User>): Promise<User | null> {

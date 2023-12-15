@@ -11,12 +11,16 @@ import { CreateUserDto } from "../../users/dto/create-user.dto";
 import { UsersService } from "../../users/users.service";
 import { UpdateUserLocationDataDto } from "modules/users/dto/update-userLocationData.dto";
 import { GetFarmDto } from "../dto/get-farms.dto";
+import { AuthService } from "modules/auth/auth.service";
+import { FarmsService } from "../farms.service";
 
 describe("FarmsController", () => {
   let app: Express;
   let agent: SuperAgentTest;
   let server: Server;
 
+  let authService: AuthService;
+  let farmsService: FarmsService;
   let usersService: UsersService;
   const createFarmDto: CreateFarmDto = {
     name: "Farm 1",
@@ -44,17 +48,21 @@ describe("FarmsController", () => {
     await clearDatabase(ds);
 
     agent = supertest.agent(app);
+    authService = new AuthService();
+    farmsService = new FarmsService();
     usersService = new UsersService();
   });
 
   describe("POST /farm", () => {
     const createUser = async (userDto: CreateUserDto) => usersService.createUser(userDto);
+    const loginUser = async (userDto: CreateUserDto) => authService.login(userDto);
 
     it("should create new farm", async () => {
       const user = await createUser(createUserDto);
+      const { token } = await loginUser(createUserDto);
 
       createFarmDto.userId = user.id;
-      const res = await agent.post("/api/farms").send(createFarmDto);
+      const res = await agent.post("/api/farms").set("Authorization", `Bearer ${token}`).send(createFarmDto);
 
       expect(res.statusCode).toBe(201);
       expect(res.body).toMatchObject({
@@ -69,6 +77,22 @@ describe("FarmsController", () => {
         updatedAt: expect.any(String),
       });
     });
+
+    it("should throw UnprocessableEntityError when trying to create a farm for a user that does not exist", async () => {
+      await createUser(createUserDto);
+      const { token } = await loginUser(createUserDto);
+
+      const res = await agent
+        .post("/api/farms")
+        .set("Authorization", `Bearer ${token}`)
+        .send({ ...createFarmDto, userId: uuidv4() });
+
+      expect(res.statusCode).toBe(422);
+      expect(res.body).toMatchObject({
+        name: "UnprocessableEntityError",
+        message: "User with the id does not exists",
+      });
+    });
   });
 
   describe("GET /farms", () => {
@@ -77,18 +101,21 @@ describe("FarmsController", () => {
       coordinates: "52.670925580780214, 10.582320297150432",
     };
 
+    const createFarm = async (farmDto: CreateFarmDto) => farmsService.createFarm(farmDto);
     const createUser = async (userDto: CreateUserDto) => usersService.createUser(userDto);
+    const loginUser = async (userDto: CreateUserDto) => authService.login(userDto);
     const updateUserLocationData = async (user: string, updateUserLocationDto: UpdateUserLocationDataDto) =>
       usersService.updateUserLocation(user, updateUserLocationDto);
 
     it("should get farms", async () => {
       const user = await createUser(createUserDto);
+      const { token } = await loginUser(createUserDto);
       await updateUserLocationData(user.id, updateUserLocationDto);
 
       createFarmDto.userId = user.id;
-      await agent.post("/api/farms").send(createFarmDto);
+      await createFarm(createFarmDto);
 
-      const res = await agent.get("/api/farms").query({ userId: user.id });
+      const res = await agent.get("/api/farms").set("Authorization", `Bearer ${token}`).query({ userId: user.id });
       const farms = res.body as GetFarmDto[];
 
       expect(res.statusCode).toBe(200);
@@ -108,9 +135,10 @@ describe("FarmsController", () => {
 
     it("should get an empty array if no farms", async () => {
       const user = await createUser(createUserDto);
+      const { token } = await loginUser(createUserDto);
       await updateUserLocationData(user.id, updateUserLocationDto);
 
-      const res = await agent.get("/api/farms").query({ userId: user.id });
+      const res = await agent.get("/api/farms").set("Authorization", `Bearer ${token}`).query({ userId: user.id });
       const farms = res.body as GetFarmDto[];
 
       expect(res.statusCode).toBe(200);
@@ -119,7 +147,10 @@ describe("FarmsController", () => {
     });
 
     it("should throw UnprocessableEntityError when trying to get a user that does not exist try to get farms", async () => {
-      const res = await agent.get("/api/farms").query({ userId: uuidv4() });
+      await createUser(createUserDto);
+      const { token } = await loginUser(createUserDto);
+
+      const res = await agent.get("/api/farms").set("Authorization", `Bearer ${token}`).query({ userId: uuidv4() });
 
       expect(res.statusCode).toBe(422);
       expect(res.body).toMatchObject({
@@ -130,8 +161,9 @@ describe("FarmsController", () => {
 
     it("should throw UnprocessableEntityError when get farms as user that does not have location data", async () => {
       const user = await createUser(createUserDto);
+      const { token } = await loginUser(createUserDto);
 
-      const res = await agent.get("/api/farms").query({ userId: user.id });
+      const res = await agent.get("/api/farms").set("Authorization", `Bearer ${token}`).query({ userId: user.id });
 
       expect(res.statusCode).toBe(422);
       expect(res.body).toMatchObject({

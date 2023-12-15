@@ -24,6 +24,10 @@ export class FarmsService {
   public async createFarm(data: CreateFarmDto): Promise<Farm> {
     const { coordinates, ...otherFarmCreationData } = data;
 
+    const user = await this.usersService.findOneBy({ id: otherFarmCreationData.userId });
+
+    if (!user) throw new UnprocessableEntityError("User with the id does not exists");
+
     const newFarm = this.farmsRepository.create({ ...otherFarmCreationData, coordinates: `(${coordinates})` });
     return this.farmsRepository.save(newFarm);
   }
@@ -131,7 +135,7 @@ export class FarmsService {
     });
 
     // This returns the distance in meters, so we divide by 1000 to get the distance in kilometers
-    return response.data.rows[0].elements.map(element => (element.distance.value) / 1000);
+    return response.data.rows[0].elements.map(element => element.distance.value / 1000);
   }
   private enhanceAndTransformFarms({ farms, drivingDistances }: { farms: Farm[]; drivingDistances: number[] }): GetFarmDto[] {
     return farms.map((farm, index) => {

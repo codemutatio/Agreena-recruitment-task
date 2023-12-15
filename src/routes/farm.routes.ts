@@ -1,4 +1,5 @@
 import { RequestHandler, Router } from "express";
+import { authMiddleware } from "middlewares/auth.middleware";
 import { FarmsController } from "modules/farms/farms.controller";
 
 const router = Router();
@@ -29,7 +30,7 @@ const farmsController = new FarmsController();
  *      422:
  *        description: Unprocessable Entity
  */
-router.post("/", farmsController.create.bind(farmsController) as RequestHandler);
+router.post("/", authMiddleware, farmsController.create.bind(farmsController) as RequestHandler);
 
 /**
  * @openapi
@@ -58,6 +59,6 @@ router.post("/", farmsController.create.bind(farmsController) as RequestHandler)
  *       422:
  *         description: Unprocessable Entity
  */
-router.get("/", farmsController.getFarms.bind(farmsController) as RequestHandler);
+router.get("/", authMiddleware, farmsController.getFarms.bind(farmsController) as RequestHandler);
 
 export default router;

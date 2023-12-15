@@ -22,11 +22,11 @@ export class UsersController {
 
   public async updateUserLocation(req: Request, res: Response, next: NextFunction) {
     try {
-      const { userId } = req.params;
+      const { id } = req.user;
       const { address, coordinates } = req.body as UpdateUserLocationDataDto;
 
-      const user = await this.usersService.updateUserLocation(userId, { address, coordinates });
-      res.status(201).send(UserDto.createFromEntity(user));
+      await this.usersService.updateUserLocation(id, { address, coordinates });
+      res.status(201).send("User updated successfully");
     } catch (error) {
       next(error);
     }

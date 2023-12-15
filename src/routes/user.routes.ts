@@ -1,4 +1,5 @@
 import { RequestHandler, Router } from "express";
+import { authMiddleware } from "middlewares/auth.middleware";
 import { UsersController } from "modules/users/users.controller";
 
 const router = Router();
@@ -31,7 +32,7 @@ const usersController = new UsersController();
 router.post("/", usersController.create.bind(usersController) as RequestHandler);
 /**
  * @openapi
- * '/api/users/:userId/location':
+ * '/api/users/location':
  *  post:
  *     tags:
  *       - User
@@ -52,6 +53,6 @@ router.post("/", usersController.create.bind(usersController) as RequestHandler)
  *      400:
  *        description: Bad request
  */
-router.post("/:userId/location", usersController.updateUserLocation.bind(usersController) as RequestHandler);
+router.post("/location", authMiddleware, usersController.updateUserLocation.bind(usersController) as RequestHandler);
 
 export default router;
