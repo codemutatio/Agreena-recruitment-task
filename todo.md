@@ -1,2 +1,3 @@
 ## Todo lists
- [ ] Fix DTOs
+ [ ] Add seeders
+ [ ] Update readme with instructions for seeding

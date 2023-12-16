@@ -24,9 +24,11 @@ import { Expose, Transform } from "class-transformer";
  *          description: The email address of the farm owner.
  *        size:
  *          type: number
+ *          format: float
  *          description: The size of the farm.
  *        yield:
  *          type: number
+ *          format: float
  *          description: The yield of the farm.
  *        drivingDistance:
  *          type: number

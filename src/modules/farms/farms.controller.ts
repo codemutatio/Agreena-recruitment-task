@@ -23,7 +23,7 @@ export class FarmsController {
 
   public async getFarms(req: Request, res: Response, next: NextFunction) {
     try {
-      const farms = await this.farmsService.getFarms(plainToClass(GetFarmsQueryDto, req.query));
+      const farms = await this.farmsService.getFarms(req.user, plainToClass(GetFarmsQueryDto, req.query));
       res.status(200).send(farms);
     } catch (error) {
       next(error);

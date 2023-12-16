@@ -9,6 +9,7 @@ import { FilterBy, GetFarmsQueryDto, SortBy, SortOrder } from "./dto/get-farmsQu
 import { UnprocessableEntityError } from "errors/errors";
 import { plainToClass } from "class-transformer";
 import { GetFarmDto } from "./dto/get-farms.dto";
+import { User } from "modules/users/entities/user.entity";
 
 export class FarmsService {
   private readonly farmsRepository: Repository<Farm>;
@@ -32,13 +33,11 @@ export class FarmsService {
     return this.farmsRepository.save(newFarm);
   }
 
-  public async getFarms(data: GetFarmsQueryDto): Promise<GetFarmDto[]> {
-    const currentUser = await this.usersService.findOneBy({ id: data.userId });
+  public async getFarms(user: User, data: GetFarmsQueryDto): Promise<GetFarmDto[]> {
 
-    if (!currentUser) throw new UnprocessableEntityError("User with the id does not exists");
-    if (!currentUser.coordinates) throw new UnprocessableEntityError("User coordinates are not set");
+    if (!user.coordinates) throw new UnprocessableEntityError("User coordinates are not set");
 
-    const currentUserCoordinates = this.convertCoordinatesToString(currentUser.coordinates);
+    const currentUserCoordinates = this.convertCoordinatesToString(user.coordinates);
 
     const query = await this.buildGetFarmsQuery(`(${currentUserCoordinates})`, data);
     const farms = await query.getMany();
@@ -116,7 +115,7 @@ export class FarmsService {
   }
 
   private convertCoordinatesToString(coordinates: string | { x: number; y: number }) {
-    return typeof coordinates !== "string" ? `${coordinates.x}, ${coordinates.y}` : coordinates;
+    return typeof coordinates !== "string" ? `${coordinates.x}, ${coordinates.y}` : coordinates.replace(/[()]/g, "");
   }
 
   private getFarmCoordinates(farms: Farm[]) {

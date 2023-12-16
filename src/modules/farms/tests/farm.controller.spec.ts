@@ -146,19 +146,6 @@ describe("FarmsController", () => {
       expect(farms.length).toBe(0);
     });
 
-    it("should throw UnprocessableEntityError when trying to get a user that does not exist try to get farms", async () => {
-      await createUser(createUserDto);
-      const { token } = await loginUser(createUserDto);
-
-      const res = await agent.get("/api/farms").set("Authorization", `Bearer ${token}`).query({ userId: uuidv4() });
-
-      expect(res.statusCode).toBe(422);
-      expect(res.body).toMatchObject({
-        name: "UnprocessableEntityError",
-        message: "User with the id does not exists",
-      });
-    });
-
     it("should throw UnprocessableEntityError when get farms as user that does not have location data", async () => {
       const user = await createUser(createUserDto);
       const { token } = await loginUser(createUserDto);

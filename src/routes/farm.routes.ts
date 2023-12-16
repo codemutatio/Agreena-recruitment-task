@@ -42,7 +42,6 @@ router.post("/", authMiddleware, farmsController.create.bind(farmsController) as
  *     parameters:
  *       - in: query
  *         name: query
- *         required: true
  *         schema:
  *           $ref: '#/components/schemas/GetFarmsQueryDto'
  *     responses:
