@@ -1,5 +1,5 @@
 import config from "config/config";
-import { DistanceMatrixAPI } from "integrations/googleMaps";
+import { DistanceMatrixAPI } from "providers/googleMaps.provider";
 
 describe("DistanceMatrixAPI Integration Test", () => {
   let distanceMatrixAPI: DistanceMatrixAPI;

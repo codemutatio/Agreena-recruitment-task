@@ -9,7 +9,7 @@ import { UnprocessableEntityError } from "errors/errors";
 import { plainToClass } from "class-transformer";
 import { GetFarmDto } from "./dto/get-farms.dto";
 import { User } from "modules/users/entities/user.entity";
-import { DistanceMatrixAPI } from "integrations/googleMaps";
+import { DistanceMatrixAPI } from "providers/googleMaps.provider";
 
 export class FarmsService {
   private readonly farmsRepository: Repository<Farm>;
