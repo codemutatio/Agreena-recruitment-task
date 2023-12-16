@@ -1,5 +1,4 @@
 import { Repository } from "typeorm";
-import { Client, TravelMode } from "@googlemaps/google-maps-services-js";
 import config from "config/config";
 import dataSource from "orm/orm.config";
 import { UsersService } from "modules/users/users.service";
@@ -10,16 +9,17 @@ import { UnprocessableEntityError } from "errors/errors";
 import { plainToClass } from "class-transformer";
 import { GetFarmDto } from "./dto/get-farms.dto";
 import { User } from "modules/users/entities/user.entity";
+import { DistanceMatrixAPI } from "integrations/googleMaps";
 
 export class FarmsService {
   private readonly farmsRepository: Repository<Farm>;
   private readonly usersService: UsersService;
-  private readonly client: Client;
+  private readonly distanceMatrixAPI: DistanceMatrixAPI;
 
   constructor() {
     this.farmsRepository = dataSource.getRepository(Farm);
     this.usersService = new UsersService();
-    this.client = new Client({});
+    this.distanceMatrixAPI = new DistanceMatrixAPI({ apiKey: config.GOOGLE_MAPS_API_KEY, maxDestinationsPerBatch: 25 });
   }
 
   public async createFarm(data: CreateFarmDto): Promise<Farm> {
@@ -34,7 +34,6 @@ export class FarmsService {
   }
 
   public async getFarms(user: User, data: GetFarmsQueryDto): Promise<GetFarmDto[]> {
-
     if (!user.coordinates) throw new UnprocessableEntityError("User coordinates are not set");
 
     const currentUserCoordinates = this.convertCoordinatesToString(user.coordinates);
@@ -45,8 +44,8 @@ export class FarmsService {
     if (!farms.length) return [];
 
     const farmsCoordinates = this.getFarmCoordinates(farms);
-    const farmDistancesFromUser = await this.getDrivingDistance({
-      origin: currentUserCoordinates,
+    const farmDistancesFromUser = await this.distanceMatrixAPI.getDrivingDistance({
+      origins: [currentUserCoordinates],
       destinations: farmsCoordinates,
     });
 
@@ -122,20 +121,6 @@ export class FarmsService {
     return farms.map(farm => this.convertCoordinatesToString(farm.coordinates));
   }
 
-  private async getDrivingDistance({ origin, destinations }: { origin: string; destinations: string[] }) {
-    const response = await this.client.distancematrix({
-      params: {
-        origins: [origin],
-        destinations,
-        key: config.GOOGLE_MAPS_API_KEY,
-        mode: TravelMode.driving,
-      },
-      timeout: 1000,
-    });
-
-    // This returns the distance in meters, so we divide by 1000 to get the distance in kilometers
-    return response.data.rows[0].elements.map(element => element.distance.value / 1000);
-  }
   private enhanceAndTransformFarms({ farms, drivingDistances }: { farms: Farm[]; drivingDistances: number[] }): GetFarmDto[] {
     return farms.map((farm, index) => {
       const drivingDistance = drivingDistances[index];
