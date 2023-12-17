@@ -52,7 +52,7 @@ router.post("/", authMiddleware, farmsController.create.bind(farmsController) as
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/FarmDto'
+ *                 $ref: '#/components/schemas/GetFarmDto'
  *       400:
  *         description: Bad request
  *       422:

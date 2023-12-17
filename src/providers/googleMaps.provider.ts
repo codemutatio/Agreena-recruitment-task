@@ -28,7 +28,7 @@ export class DistanceMatrixAPI {
       });
 
       // This returns the distance in meters, so we divide by 1000 to get the distance in kilometers
-      const batchDistances = distanceResponse.data.rows[0].elements.map(element => element.distance.value / 1000);
+      const batchDistances = distanceResponse.data.rows[0].elements.map(element => (element?.distance?.value || 0) / 1000);
       allDistances = allDistances.concat(batchDistances);
     }
 

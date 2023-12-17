@@ -33,12 +33,12 @@ export class FarmSeedFactory {
       id: faker.string.uuid(),
       address: faker.location.streetAddress(),
       coordinates: `(${faker.location.latitude({
-        min: 35,
-        max: 71,
+        min: 54.57,
+        max: 56.75,
         precision: 8,
       })}, ${faker.location.longitude({
-        min: -25,
-        max: 40,
+        min: 8.07,
+        max: 11.13,
         precision: 8,
       })})`,
       name: faker.company.name(),

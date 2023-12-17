@@ -49,6 +49,104 @@
             "url": "http://localhost:3000/api/users"
           },
           "response": []
+        },
+        {
+          "name": "Update User Location",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN_HERE",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"address\": \"Langebrogade 3F, 3rd Floor, 1411 Copenhagen K, Denmark\",\n    \"coordinates\": \"55.67087112646539, 12.582277381808696\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "http://localhost:3000/api/users/location"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "farm",
+      "items": [
+        {
+          "name": "Create Farm",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN_HERE",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Farm 1\",\n    \"address\": \"N\u00f8rrebro, Copenhagen, Denmark\",\n    \"coordinates\": \"55.67087112646539, 12.582277381808696\",\n    \"size\": 100.3,\n    \"userId\": \"<User_ID>\",\n    \"yield\": 90.4\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "http://localhost:3000/api/farms"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Farms",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN_HERE",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:3000/api/farms?filterBy=OUTLIERS&filterValue=true&page=1&size=10&sortBy=name&sortOrder=ASC",
+              "host": ["localhost:3000"],
+              "path": ["api", "farms"],
+              "query": [
+                {
+                  "key": "filterBy",
+                  "value": "OUTLIERS"
+                },
+                {
+                  "key": "filterValue",
+                  "value": "true"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "size",
+                  "value": "10"
+                },
+                {
+                  "key": "sortBy",
+                  "value": "name"
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "ASC"
+                }
+              ]
+            }
+          },
+          "response": []
         }
       ]
     }
