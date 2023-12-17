@@ -72,6 +72,15 @@ Migration scripts:
 - you can also use `npm run test:migration:run`, `npm run test:migration:show` and `npm run test:migration:revert` to
   manage testing database
 
+## Seeding the Database
+
+The project includes a seeding script to populate the database with initial data for development purposes.
+To seed the database, run the following command:
+
+```bash
+npm run seed:run
+```
+
 ## Swagger
 
 Swagger will be available on <http://localhost:3000/docs> by default
