@@ -16,6 +16,7 @@
     "migration:revert": "npm run typeorm migration:revert",
     "migration:create": "typeorm migration:create ./src/modules/$npm_config_path/migrations/$npm_config_name",
     "prepare": "husky install",
+    "seed:run": "ts-node ./src/orm/seed.ts",
     "test": "NODE_ENV=test jest --runInBand --verbose --coverage",
     "test:watch": "NODE_ENV=test jest --runInBand --verbose --watch",
     "test:migration:show": "NODE_ENV=test npm run typeorm migration:show",
@@ -25,6 +26,7 @@
   "author": "Agreena",
   "license": "ISC",
   "dependencies": {
+    "@faker-js/faker": "^8.3.1",
     "@googlemaps/google-maps-services-js": "^3.3.42",
     "bcrypt": "^5.1.0",
     "class-transformer": "^0.5.1",
