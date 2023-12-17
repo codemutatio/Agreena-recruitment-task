@@ -1,2 +1,2 @@
 ## Todo lists
- [ ] Update readme with instructions for seeding
+ [ ] Add Diagram to the PoC in the readme file
