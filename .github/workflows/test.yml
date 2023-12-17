@@ -3,17 +3,18 @@ name: Test
 on: [push]
 
 env:
-  APP_PORT: 3000
-  APP_HOST: http://localhost:3000
-  NODE_ENV: test
-  DB_HOST: localhost
-  DB_PORT: 5440
-  DB_USERNAME: postgres
-  DB_PASSWORD: postgres
-  DB_NAME: postgres
-  SALT_ROUNDS: 10
-  JWT_SECRET: secret
-  JWT_EXPIRES_AT: 10
+  APP_PORT: ${{ secrets.APP_PORT }}
+  APP_HOST: ${{ secrets.APP_HOST }}
+  NODE_ENV: ${{ secrets.NODE_ENV }}
+  DB_HOST: ${{ secrets.DB_HOST }}
+  DB_PORT: ${{ secrets.DB_PORT }}
+  DB_USERNAME: ${{ secrets.DB_USERNAME }}
+  DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+  DB_NAME: ${{ secrets.DB_NAME }}
+  SALT_ROUNDS: ${{ secrets.SALT_ROUNDS }}
+  JWT_SECRET: ${{ secrets.JWT_SECRET }}
+  JWT_EXPIRES_AT: ${{ secrets.JWT_EXPIRES_AT }}
+  GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
 
 jobs:
   build:
