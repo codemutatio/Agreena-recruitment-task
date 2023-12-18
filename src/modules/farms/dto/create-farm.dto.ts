@@ -11,7 +11,6 @@ import { IsNotEmpty, IsNumber, IsString, IsLatLong } from "class-validator";
  *        - coordinates
  *        - name
  *        - size
- *        - userId
  *        - yield
  *      properties:
  *        address:
