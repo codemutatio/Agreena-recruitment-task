@@ -78,7 +78,7 @@ The project includes a seeding script to populate the database with initial data
 To seed the database, run the following command:
 
 ```bash
-npm run seed:run
+npm run seed
 ```
 
 ## Swagger

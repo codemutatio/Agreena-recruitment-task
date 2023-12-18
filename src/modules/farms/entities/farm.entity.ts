@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, Index, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 import { User } from "modules/users/entities/user.entity";
 
@@ -25,6 +25,7 @@ export class Farm {
   public coordinates: string;
 
   @Column()
+  @Index()
   public name: string;
 
   @Column({ type: "float" })
@@ -34,9 +35,11 @@ export class Farm {
   public userId: string;
 
   @Column({ type: "float" })
+  @Index()
   public yield: number;
 
   @CreateDateColumn()
+  @Index()
   public createdAt: Date;
 
   @UpdateDateColumn()
