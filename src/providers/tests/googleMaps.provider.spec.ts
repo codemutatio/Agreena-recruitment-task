@@ -15,7 +15,6 @@ describe("DistanceMatrixAPI Integration Test", () => {
 
     const distances = await distanceMatrixAPI.getDrivingDistance({ origins, destinations });
 
-
     expect(Array.isArray(distances)).toBe(true);
     expect(distances.length).toBe(destinations.length);
     distances.forEach(distance => {

@@ -14,6 +14,7 @@ export class DistanceMatrixAPI {
       },
     });
   }
+
   public async getDrivingDistance({ origins, destinations }: { origins: string[]; destinations: string[] }): Promise<number[]> {
     const batches = this.createBatches(destinations);
     let allDistances: number[] = [];
@@ -27,11 +28,13 @@ export class DistanceMatrixAPI {
         },
       });
 
+      // Note: The function presently takes into account a single origin as that is the use case for this project
       // This returns the distance in meters, so we divide by 1000 to get the distance in kilometers
       const batchDistances = distanceResponse.data.rows[0].elements.map(element => (element?.distance?.value || 0) / 1000);
       allDistances = allDistances.concat(batchDistances);
     }
 
+    // Note: The order of the distances in the response is the same as the order of the destinations in the request
     return allDistances;
   }
 
