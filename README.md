@@ -246,14 +246,6 @@ export class DistanceMatrixAPI {
     this.maxDestinationsPerBatch = maxDestinationsPerBatch;
   }
 
-  private createBatches(destinations: string[]): string[][] {
-    const batches: string[][] = [];
-    for (let i = 0; i < destinations.length; i += this.maxDestinationsPerBatch) {
-      batches.push(destinations.slice(i, i + this.maxDestinationsPerBatch));
-    }
-    return batches;
-  }
-
   public async getDrivingDistance({ origins, destinations }: { origins: string[]; destinations: string[] }): Promise<number[]> {
     const batches = this.createBatches(destinations);
     let allDistances: number[] = [];
@@ -276,6 +268,14 @@ export class DistanceMatrixAPI {
     }
 
     return allDistances;
+  }
+
+  private createBatches(destinations: string[]): string[][] {
+    const batches: string[][] = [];
+    for (let i = 0; i < destinations.length; i += this.maxDestinationsPerBatch) {
+      batches.push(destinations.slice(i, i + this.maxDestinationsPerBatch));
+    }
+    return batches;
   }
 }
 
