@@ -16,8 +16,7 @@ export class User {
     transformer: {
       to(value: string): string | null {
         if(!value) return null;
-        const [latitude, longitude] = value.split(",").map(Number);
-        return `(${latitude}, ${longitude})`;
+        return `(${value})`;
       },
       from(value: { x: number; y: number }): string | null {
         if (!value) return null;

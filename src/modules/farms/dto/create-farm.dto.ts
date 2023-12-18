@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsString, IsUUID, IsLatLong } from "class-validator";
+import { IsNotEmpty, IsNumber, IsString, IsLatLong } from "class-validator";
 
 /**
  * @openapi
@@ -32,10 +32,6 @@ import { IsNotEmpty, IsNumber, IsString, IsUUID, IsLatLong } from "class-validat
  *          format: float
  *          description: "Size of the farm in hectares"
  *          example: 100.3
- *        userId:
- *          type: string
- *          format: uuid
- *          description: "User ID of the farm owner"
  *        yield:
  *          type: number
  *          format: float
@@ -58,10 +54,6 @@ export class CreateFarmDto {
   @IsNotEmpty()
   @IsNumber()
   public size: number;
-
-  @IsNotEmpty()
-  @IsUUID()
-  public userId: string;
 
   @IsNotEmpty()
   @IsNumber()

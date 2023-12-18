@@ -26,7 +26,6 @@ describe("FarmsService", () => {
     address: "Farm 1 address",
     coordinates: "55.67087112646539, 12.582277381808696",
     size: 100,
-    userId: "",
     yield: 85.2,
   };
   const createFarm2Dto: CreateFarmDto = {
@@ -34,7 +33,6 @@ describe("FarmsService", () => {
     address: "Farm 3 address",
     coordinates: "53.67087112646539, 12.582277381808696",
     size: 80,
-    userId: "",
     yield: 45.76,
   };
   const createFarm3Dto: CreateFarmDto = {
@@ -42,7 +40,6 @@ describe("FarmsService", () => {
     address: "Farm 3 address",
     coordinates: "52.71087112646539, 10.622277381808696",
     size: 350.6,
-    userId: "",
     yield: 180.5,
   };
 
@@ -69,8 +66,7 @@ describe("FarmsService", () => {
     it("should create new farm", async () => {
       const createdUser = await usersService.createUser(createUserDto);
 
-      createFarm1Dto.userId = createdUser.id;
-      const createdFarm = await farmsService.createFarm(createFarm1Dto);
+      const createdFarm = await farmsService.createFarm(createdUser.id, createFarm1Dto);
       expect(createdFarm).toBeInstanceOf(Farm);
     });
   });
@@ -83,12 +79,10 @@ describe("FarmsService", () => {
 
     it("should fetch farms with enhanced properties and transformed to GetFarmDto", async () => {
       const createdUser = await usersService.createUser(createUserDto);
-      createFarm1Dto.userId = createdUser.id;
-      createFarm2Dto.userId = createdUser.id;
       const [updatedUser] = await Promise.all([
         usersService.updateUserLocation(createdUser.id, updateUserLocationDto),
-        farmsService.createFarm(createFarm1Dto),
-        farmsService.createFarm(createFarm2Dto),
+        farmsService.createFarm(createdUser.id, createFarm1Dto),
+        farmsService.createFarm(createdUser.id, createFarm2Dto),
       ]);
 
       // Create a GetFarmsQueryDto object
@@ -113,14 +107,11 @@ describe("FarmsService", () => {
 
     it("should sort farms by distance", async () => {
       const createdUser = await usersService.createUser(createUserDto);
-      createFarm1Dto.userId = createdUser.id;
-      createFarm2Dto.userId = createdUser.id;
-      createFarm3Dto.userId = createdUser.id;
       const [updatedUser] = await Promise.all([
         usersService.updateUserLocation(createdUser.id, updateUserLocationDto),
-        farmsService.createFarm(createFarm1Dto),
-        farmsService.createFarm(createFarm2Dto),
-        farmsService.createFarm(createFarm3Dto),
+        farmsService.createFarm(createdUser.id, createFarm1Dto),
+        farmsService.createFarm(createdUser.id, createFarm2Dto),
+        farmsService.createFarm(createdUser.id, createFarm3Dto),
       ]);
 
       const getFarmsQueryDto: GetFarmsQueryDto = plainToClass(GetFarmsQueryDto, {
@@ -134,14 +125,11 @@ describe("FarmsService", () => {
 
     it("should filter by outliers set to false", async () => {
       const createdUser = await usersService.createUser(createUserDto);
-      createFarm1Dto.userId = createdUser.id;
-      createFarm2Dto.userId = createdUser.id;
-      createFarm3Dto.userId = createdUser.id;
       const [updatedUser] = await Promise.all([
         usersService.updateUserLocation(createdUser.id, updateUserLocationDto),
-        farmsService.createFarm(createFarm1Dto),
-        farmsService.createFarm(createFarm2Dto),
-        farmsService.createFarm(createFarm3Dto),
+        farmsService.createFarm(createdUser.id, createFarm1Dto),
+        farmsService.createFarm(createdUser.id, createFarm2Dto),
+        farmsService.createFarm(createdUser.id, createFarm3Dto),
       ]);
 
       const getFarmsQueryDto: GetFarmsQueryDto = plainToClass(GetFarmsQueryDto, {
@@ -156,14 +144,11 @@ describe("FarmsService", () => {
 
     it("should filter by outliers set to true", async () => {
       const createdUser = await usersService.createUser(createUserDto);
-      createFarm1Dto.userId = createdUser.id;
-      createFarm2Dto.userId = createdUser.id;
-      createFarm3Dto.userId = createdUser.id;
       const [updatedUser] = await Promise.all([
         usersService.updateUserLocation(createdUser.id, updateUserLocationDto),
-        farmsService.createFarm(createFarm1Dto),
-        farmsService.createFarm(createFarm2Dto),
-        farmsService.createFarm(createFarm3Dto),
+        farmsService.createFarm(createdUser.id, createFarm1Dto),
+        farmsService.createFarm(createdUser.id, createFarm2Dto),
+        farmsService.createFarm(createdUser.id, createFarm3Dto),
       ]);
 
       const getFarmsQueryDto: GetFarmsQueryDto = plainToClass(GetFarmsQueryDto, {

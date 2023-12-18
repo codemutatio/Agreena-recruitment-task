@@ -24,7 +24,7 @@ export class UserSeedFactory {
     return {
       id: faker.string.uuid(),
       address: faker.location.streetAddress(),
-      coordinates: `(${faker.location.latitude({
+      coordinates: `${faker.location.latitude({
         min: 54.57,
         max: 55.75,
         precision: 8,
@@ -32,7 +32,7 @@ export class UserSeedFactory {
         min: 10.07,
         max: 11.13,
         precision: 8,
-      })})`,
+      })}`,
       email: faker.internet.email(),
       hashedPassword: faker.internet.password(),
       createdAt: faker.date.past(),

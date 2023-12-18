@@ -13,8 +13,10 @@ export class FarmsController {
   }
 
   public async create(req: Request, res: Response, next: NextFunction) {
+    const { id } = req.user;
+
     try {
-      const farm = await this.farmsService.createFarm(req.body as CreateFarmDto);
+      const farm = await this.farmsService.createFarm(id, req.body as CreateFarmDto);
       res.status(201).send(FarmDto.createFromEntity(farm));
     } catch (error) {
       next(error);

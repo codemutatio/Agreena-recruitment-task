@@ -1,6 +1,5 @@
 import config from "config/config";
 import { Express } from "express";
-import { v4 as uuidv4 } from "uuid";
 import { setupServer } from "server/server";
 import { clearDatabase, disconnectAndClearDatabase } from "helpers/utils";
 import http, { Server } from "http";
@@ -27,7 +26,6 @@ describe("FarmsController", () => {
     address: "Farm 1 address",
     coordinates: "55.67087112646539, 12.582277381808696",
     size: 100.3,
-    userId: "",
     yield: 90.4,
   };
   const createUserDto: CreateUserDto = { email: "user@test.com", password: "password" };
@@ -61,7 +59,6 @@ describe("FarmsController", () => {
       const user = await createUser(createUserDto);
       const { token } = await loginUser(createUserDto);
 
-      createFarmDto.userId = user.id;
       const res = await agent.post("/api/farms").set("Authorization", `Bearer ${token}`).send(createFarmDto);
 
       expect(res.statusCode).toBe(201);
@@ -78,19 +75,18 @@ describe("FarmsController", () => {
       });
     });
 
-    it("should throw UnprocessableEntityError when trying to create a farm for a user that does not exist", async () => {
+    it("should throw Internal server error if passed with invalid coordinates", async () => {
       await createUser(createUserDto);
       const { token } = await loginUser(createUserDto);
 
       const res = await agent
         .post("/api/farms")
         .set("Authorization", `Bearer ${token}`)
-        .send({ ...createFarmDto, userId: uuidv4() });
+        .send({ ...createFarmDto, coordinates: "invalid coordinates" });
 
-      expect(res.statusCode).toBe(422);
+      expect(res.statusCode).toBe(500);
       expect(res.body).toMatchObject({
-        name: "UnprocessableEntityError",
-        message: "User with the id does not exists",
+        message: "Internal Server Error",
       });
     });
   });
@@ -101,7 +97,7 @@ describe("FarmsController", () => {
       coordinates: "52.670925580780214, 10.582320297150432",
     };
 
-    const createFarm = async (farmDto: CreateFarmDto) => farmsService.createFarm(farmDto);
+    const createFarm = async (userId: string, farmDto: CreateFarmDto) => farmsService.createFarm(userId, farmDto);
     const createUser = async (userDto: CreateUserDto) => usersService.createUser(userDto);
     const loginUser = async (userDto: CreateUserDto) => authService.login(userDto);
     const updateUserLocationData = async (user: string, updateUserLocationDto: UpdateUserLocationDataDto) =>
@@ -112,8 +108,7 @@ describe("FarmsController", () => {
       const { token } = await loginUser(createUserDto);
       await updateUserLocationData(user.id, updateUserLocationDto);
 
-      createFarmDto.userId = user.id;
-      await createFarm(createFarmDto);
+      await createFarm(user.id, createFarmDto);
 
       const res = await agent.get("/api/farms").set("Authorization", `Bearer ${token}`).query({ userId: user.id });
       const farms = res.body as GetFarmDto[];

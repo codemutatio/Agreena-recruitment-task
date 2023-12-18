@@ -1,7 +1,6 @@
 import { Repository } from "typeorm";
 import config from "config/config";
 import dataSource from "orm/orm.config";
-import { UsersService } from "modules/users/users.service";
 import { CreateFarmDto } from "./dto/create-farm.dto";
 import { Farm } from "./entities/farm.entity";
 import { FilterBy, GetFarmsQueryDto, SortBy, SortOrder } from "./dto/get-farmsQuery.dto";
@@ -13,21 +12,15 @@ import { DistanceMatrixAPI } from "providers/googleMaps.provider";
 
 export class FarmsService {
   private readonly farmsRepository: Repository<Farm>;
-  private readonly usersService: UsersService;
   private readonly distanceMatrixAPI: DistanceMatrixAPI;
 
   constructor() {
     this.farmsRepository = dataSource.getRepository(Farm);
-    this.usersService = new UsersService();
     this.distanceMatrixAPI = new DistanceMatrixAPI({ apiKey: config.GOOGLE_MAPS_API_KEY, maxDestinationsPerBatch: 25 });
   }
 
-  public async createFarm(data: CreateFarmDto): Promise<Farm> {
-    const user = await this.usersService.findOneBy({ id: data.userId });
-
-    if (!user) throw new UnprocessableEntityError("User with the id does not exists");
-
-    const newFarm = this.farmsRepository.create(data);
+  public async createFarm(userId: string, data: CreateFarmDto): Promise<Farm> {
+    const newFarm = this.farmsRepository.create({ ...data, userId });
 
     return this.farmsRepository.save(newFarm);
   }
@@ -40,7 +33,7 @@ export class FarmsService {
 
     if (!farms.length) return [];
 
-    const farmsCoordinates = this.getFarmCoordinates(farms);
+    const farmsCoordinates = farms.map(farm => farm.coordinates);
     const farmDistancesFromUser = await this.distanceMatrixAPI.getDrivingDistance({
       origins: [user.coordinates],
       destinations: farmsCoordinates,
@@ -108,10 +101,6 @@ export class FarmsService {
       .getRawOne()) as { averageYield: string };
 
     return +averageResult.averageYield;
-  }
-
-  private getFarmCoordinates(farms: Farm[]) {
-    return farms.map(farm => farm.coordinates);
   }
 
   private enhanceAndTransformFarms({ farms, drivingDistances }: { farms: Farm[]; drivingDistances: number[] }): GetFarmDto[] {

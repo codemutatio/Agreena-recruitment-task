@@ -25,7 +25,7 @@ export class FarmSeedFactory {
     return {
       id: faker.string.uuid(),
       address: faker.location.streetAddress(),
-      coordinates: `(${faker.location.latitude({
+      coordinates: `${faker.location.latitude({
         min: 54.57,
         max: 56.75,
         precision: 8,
@@ -33,7 +33,7 @@ export class FarmSeedFactory {
         min: 8.07,
         max: 11.13,
         precision: 8,
-      })})`,
+      })}`,
       name: faker.company.name(),
       size: faker.number.float({
         min: 45,
