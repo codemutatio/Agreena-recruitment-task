@@ -67,7 +67,7 @@ describe("UsersController", () => {
       const updatedUser = await usersService.updateUserLocation(user.id, updateUserLocationDto);
 
       expect(updatedUser.address).toBe(updateUserLocationDto.address);
-      expect(updatedUser.coordinates).toBe(`(${updateUserLocationDto.coordinates})`);
+      expect(updatedUser.coordinates).toBe(updateUserLocationDto.coordinates);
     });
   });
 

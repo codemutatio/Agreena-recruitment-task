@@ -10,8 +10,19 @@ export class Farm {
   @Column()
   public address: string;
 
-  @Column({ type: "point" })
-  public coordinates: string | { x: number; y: number };
+  @Column({
+    type: "point",
+    transformer: {
+      to(value: string): string {
+        const [latitude, longitude] = value.split(",").map(Number);
+        return `(${latitude}, ${longitude})`;
+      },
+      from(value: { x: number; y: number }): string {
+        return `${value.x},${value.y}`;
+      },
+    },
+  })
+  public coordinates: string;
 
   @Column()
   public name: string;

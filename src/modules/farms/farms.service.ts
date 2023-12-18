@@ -23,29 +23,26 @@ export class FarmsService {
   }
 
   public async createFarm(data: CreateFarmDto): Promise<Farm> {
-    const { coordinates, ...otherFarmCreationData } = data;
-
-    const user = await this.usersService.findOneBy({ id: otherFarmCreationData.userId });
+    const user = await this.usersService.findOneBy({ id: data.userId });
 
     if (!user) throw new UnprocessableEntityError("User with the id does not exists");
 
-    const newFarm = this.farmsRepository.create({ ...otherFarmCreationData, coordinates: `(${coordinates})` });
+    const newFarm = this.farmsRepository.create(data);
+
     return this.farmsRepository.save(newFarm);
   }
 
   public async getFarms(user: User, data: GetFarmsQueryDto): Promise<GetFarmDto[]> {
     if (!user.coordinates) throw new UnprocessableEntityError("User coordinates are not set");
 
-    const currentUserCoordinates = this.convertCoordinatesToString(user.coordinates);
-
-    const query = await this.buildGetFarmsQuery(`(${currentUserCoordinates})`, data);
+    const query = await this.buildGetFarmsQuery(`(${user.coordinates})`, data);
     const farms = await query.getMany();
 
     if (!farms.length) return [];
 
     const farmsCoordinates = this.getFarmCoordinates(farms);
     const farmDistancesFromUser = await this.distanceMatrixAPI.getDrivingDistance({
-      origins: [currentUserCoordinates],
+      origins: [user.coordinates],
       destinations: farmsCoordinates,
     });
 
@@ -56,15 +53,6 @@ export class FarmsService {
     }
 
     return enhancedFarms;
-  }
-
-  private async getAverageYield(): Promise<number> {
-    const averageResult = (await this.farmsRepository
-      .createQueryBuilder("farm")
-      .select("ROUND(AVG(farm.yield)::numeric, 2)", "averageYield")
-      .getRawOne()) as { averageYield: string };
-
-    return +averageResult.averageYield;
   }
 
   private async buildGetFarmsQuery(userCoordinates: string, data: GetFarmsQueryDto) {
@@ -113,12 +101,17 @@ export class FarmsService {
     return query;
   }
 
-  private convertCoordinatesToString(coordinates: string | { x: number; y: number }) {
-    return typeof coordinates !== "string" ? `${coordinates.x}, ${coordinates.y}` : coordinates.replace(/[()]/g, "");
+  private async getAverageYield(): Promise<number> {
+    const averageResult = (await this.farmsRepository
+      .createQueryBuilder("farm")
+      .select("ROUND(AVG(farm.yield)::numeric, 2)", "averageYield")
+      .getRawOne()) as { averageYield: string };
+
+    return +averageResult.averageYield;
   }
 
   private getFarmCoordinates(farms: Farm[]) {
-    return farms.map(farm => this.convertCoordinatesToString(farm.coordinates));
+    return farms.map(farm => farm.coordinates);
   }
 
   private enhanceAndTransformFarms({ farms, drivingDistances }: { farms: Farm[]; drivingDistances: number[] }): GetFarmDto[] {

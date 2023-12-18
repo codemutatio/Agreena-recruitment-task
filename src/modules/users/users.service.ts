@@ -31,7 +31,7 @@ export class UsersService {
   public async updateUserLocation(userId: string, data: UpdateUserLocationDataDto): Promise<User> {
     const { address, coordinates } = data;
 
-    return this.usersRepository.save({ id: userId, address, coordinates: `(${coordinates})` });
+    return this.usersRepository.save({ id: userId, address, coordinates });
   }
 
   public async findOneBy(param: FindOptionsWhere<User>): Promise<User | null> {

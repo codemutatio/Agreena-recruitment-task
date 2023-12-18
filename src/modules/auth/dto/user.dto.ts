@@ -36,7 +36,6 @@ export class UserDto {
   @Expose()
   public address?: string;
 
-  @Transform(({ value }) => (value as string)?.replace(/[()]/g, "") || "")
   @Expose()
   public coordinates?: string;
 

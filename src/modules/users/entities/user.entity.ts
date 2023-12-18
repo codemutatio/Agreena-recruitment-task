@@ -10,8 +10,22 @@ export class User {
   @Column({ nullable: true })
   public address: string;
 
-  @Column({ type: "point", nullable: true })
-  public coordinates: string | { x: number; y: number };
+  @Column({
+    type: "point",
+    nullable: true,
+    transformer: {
+      to(value: string): string | null {
+        if(!value) return null;
+        const [latitude, longitude] = value.split(",").map(Number);
+        return `(${latitude}, ${longitude})`;
+      },
+      from(value: { x: number; y: number }): string | null {
+        if (!value) return null;
+        return `${value.x},${value.y}`;
+      },
+    },
+  })
+  public coordinates: string;
 
   @Column({ unique: true })
   public email: string;
