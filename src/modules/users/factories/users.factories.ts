@@ -11,15 +11,13 @@ export class UserSeedFactory {
   }
 
   public async createMany(quantity: number) {
-    const existingUsers = await this.usersRepository.count();
+    const users = faker.helpers.multiple(this.createRandomUser, {
+      count: quantity,
+    });
 
-    if (!existingUsers) {
-      const users = faker.helpers.multiple(this.createRandomUser, {
-        count: quantity,
-      });
+    await this.usersRepository.insert(users);
 
-      await this.usersRepository.insert(users);
-    }
+    return users;
   }
 
   private createRandomUser() {
@@ -27,12 +25,12 @@ export class UserSeedFactory {
       id: faker.string.uuid(),
       address: faker.location.streetAddress(),
       coordinates: `(${faker.location.latitude({
-        min: 35,
-        max: 71,
+        min: 54.57,
+        max: 55.75,
         precision: 8,
       })}, ${faker.location.longitude({
-        min: -25,
-        max: 40,
+        min: 10.07,
+        max: 11.13,
         precision: 8,
       })})`,
       email: faker.internet.email(),

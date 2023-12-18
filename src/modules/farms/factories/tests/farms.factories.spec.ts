@@ -7,6 +7,7 @@ import { clearDatabase, disconnectAndClearDatabase } from "helpers/utils";
 import { Repository } from "typeorm";
 import { Farm } from "modules/farms/entities/farm.entity";
 import { UserSeedFactory } from "modules/users/factories/users.factories";
+import { User } from "modules/users/entities/user.entity";
 
 describe("FarmSeedFactory", () => {
   let app: Express;
@@ -37,22 +38,16 @@ describe("FarmSeedFactory", () => {
   });
 
   it("should create n amount of farms per user", async () => {
-    await userSeedFactory.createMany(10);
-    await farmSeedFactory.createMany(30);
+    const users = (await userSeedFactory.createMany(10)) as User[];
+
+    await farmSeedFactory.createMany({
+      quantity: 30,
+      users,
+    });
 
     const farms = await farmsRepository.find();
 
     expect(farms.length).toBe(300);
     expect(farms[0]).toBeInstanceOf(Farm);
-  });
-
-  it("should not create farms if they already exist", async () => {
-    await userSeedFactory.createMany(10);
-    await farmSeedFactory.createMany(30);
-    await farmSeedFactory.createMany(30);
-
-    const farms = await farmsRepository.find();
-
-    expect(farms.length).toBe(300);
   });
 });

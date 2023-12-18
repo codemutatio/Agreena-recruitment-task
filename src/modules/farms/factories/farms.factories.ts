@@ -6,25 +6,18 @@ import { User } from "modules/users/entities/user.entity";
 
 export class FarmSeedFactory {
   private readonly farmsRepository: Repository<Farm>;
-  private readonly usersRepository: Repository<User>;
 
   constructor() {
     this.farmsRepository = dataSource.getRepository(Farm);
-    this.usersRepository = dataSource.getRepository(User);
   }
 
-  public async createMany(quantity: number) {
-    const existingFarms = await this.farmsRepository.count();
-    const existingUsers = await this.usersRepository.find({ select: ["id"] });
+  public async createMany({ quantity, users }: { quantity: number; users: User[] }) {
+    for (const user of users) {
+      const farms = faker.helpers.multiple(this.createRandomFarm, {
+        count: quantity,
+      });
 
-    if (!existingFarms) {
-      for (const user of existingUsers) {
-        const farms = faker.helpers.multiple(this.createRandomFarm, {
-          count: quantity,
-        });
-
-        await this.farmsRepository.insert(farms.map(farm => ({ ...farm, userId: user.id })));
-      }
+      await this.farmsRepository.insert(farms.map(farm => ({ ...farm, userId: user.id })));
     }
   }
 

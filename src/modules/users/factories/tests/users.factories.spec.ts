@@ -41,13 +41,4 @@ describe("UserSeedFactory", () => {
     expect(users.length).toBe(10);
     expect(users[0]).toBeInstanceOf(User);
   });
-
-  it("should not create users if they already exist", async () => {
-    await userSeedFactory.createMany(10);
-    await userSeedFactory.createMany(10);
-
-    const users = await usersRepository.find();
-
-    expect(users.length).toBe(10);
-  });
 });
