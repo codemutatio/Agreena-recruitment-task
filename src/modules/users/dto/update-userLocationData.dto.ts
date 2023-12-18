@@ -1,4 +1,4 @@
-import { IsLatLong, IsNotEmpty, IsString } from "class-validator";
+import { IsNotEmpty, IsString } from "class-validator";
 
 /**
  * @openapi
@@ -13,18 +13,11 @@ import { IsLatLong, IsNotEmpty, IsString } from "class-validator";
  *        address:
  *          type: string
  *          default: Langebrogade 3F, 3rd Floor, 1411 Copenhagen K, Denmark
- *        coordinates:
- *          type: string
- *          default: '55.67087112646539, 12.582277381808696'
  */
 export class UpdateUserLocationDataDto {
   @IsString()
   @IsNotEmpty()
   public address: string;
-
-  @IsLatLong()
-  @IsNotEmpty()
-  public coordinates: string;
 }
 
 

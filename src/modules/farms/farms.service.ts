@@ -8,19 +8,25 @@ import { UnprocessableEntityError } from "errors/errors";
 import { plainToClass } from "class-transformer";
 import { GetFarmDto } from "./dto/get-farms.dto";
 import { User } from "modules/users/entities/user.entity";
-import { DistanceMatrixAPI } from "providers/googleMaps.provider";
+import { GoogleMapAPI } from "providers/googleMaps.provider";
 
 export class FarmsService {
   private readonly farmsRepository: Repository<Farm>;
-  private readonly distanceMatrixAPI: DistanceMatrixAPI;
+  private readonly googleMapAPI: GoogleMapAPI;
 
   constructor() {
     this.farmsRepository = dataSource.getRepository(Farm);
-    this.distanceMatrixAPI = new DistanceMatrixAPI({ apiKey: config.GOOGLE_MAPS_API_KEY, maxDestinationsPerBatch: 25 });
+    this.googleMapAPI = new GoogleMapAPI({ apiKey: config.GOOGLE_MAPS_API_KEY, maxDestinationsPerBatch: 25 });
   }
 
   public async createFarm(userId: string, data: CreateFarmDto): Promise<Farm> {
-    const newFarm = this.farmsRepository.create({ ...data, userId });
+    const { address } = data;
+
+    const coordinate = await this.googleMapAPI.getCoordinateFromAddressString({ addressInput: address });
+
+    if (!coordinate) throw new UnprocessableEntityError("Invalid address");
+
+    const newFarm = this.farmsRepository.create({ ...data, coordinates: coordinate, userId });
 
     return this.farmsRepository.save(newFarm);
   }
@@ -34,7 +40,7 @@ export class FarmsService {
     if (!farms.length) return [];
 
     const farmsCoordinates = farms.map(farm => farm.coordinates);
-    const farmDistancesFromUser = await this.distanceMatrixAPI.getDrivingDistance({
+    const farmDistancesFromUser = await this.googleMapAPI.getDrivingDistance({
       origins: [user.coordinates],
       destinations: farmsCoordinates,
     });

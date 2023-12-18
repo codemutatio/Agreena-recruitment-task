@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsString, IsLatLong } from "class-validator";
+import { IsNotEmpty, IsNumber, IsString } from "class-validator";
 
 /**
  * @openapi
@@ -17,11 +17,6 @@ import { IsNotEmpty, IsNumber, IsString, IsLatLong } from "class-validator";
  *          type: string
  *          description: "Address of the farm"
  *          example: "Nørrebro, Copenhagen, Denmark"
- *        coordinates:
- *          type: string
- *          format: lat,long
- *          description: "Comma-separated latitude and longitude (e.g., '55.67087112646539, 12.582277381808696')"
- *          example: "55.67087112646539, 12.582277381808696"
  *        name:
  *          type: string
  *          description: "Name of the farm"
@@ -41,10 +36,6 @@ export class CreateFarmDto {
   @IsNotEmpty()
   @IsString()
   public address: string;
-
-  @IsNotEmpty()
-  @IsLatLong()
-  public coordinates: string;
 
   @IsNotEmpty()
   @IsString()

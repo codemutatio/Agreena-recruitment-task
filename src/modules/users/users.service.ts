@@ -1,17 +1,20 @@
+import { DeepPartial, FindOptionsWhere, Repository } from "typeorm";
 import * as bcrypt from "bcrypt";
 import config from "config/config";
+import dataSource from "orm/orm.config";
 import { UnprocessableEntityError } from "errors/errors";
-import { DeepPartial, FindOptionsWhere, Repository } from "typeorm";
+import { GoogleMapAPI } from "providers/googleMaps.provider";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { User } from "./entities/user.entity";
-import dataSource from "orm/orm.config";
 import { UpdateUserLocationDataDto } from "./dto/update-userLocationData.dto";
 
 export class UsersService {
   private readonly usersRepository: Repository<User>;
+  private readonly googleMapAPI: GoogleMapAPI;
 
   constructor() {
     this.usersRepository = dataSource.getRepository(User);
+    this.googleMapAPI = new GoogleMapAPI({ apiKey: config.GOOGLE_MAPS_API_KEY });
   }
 
   public async createUser(data: CreateUserDto): Promise<User> {
@@ -29,9 +32,13 @@ export class UsersService {
   }
 
   public async updateUserLocation(userId: string, data: UpdateUserLocationDataDto): Promise<User> {
-    const { address, coordinates } = data;
+    const { address } = data;
 
-    return this.usersRepository.save({ id: userId, address, coordinates });
+    const coordinate = await this.googleMapAPI.getCoordinateFromAddressString({ addressInput: address });
+
+    if (!coordinate) throw new UnprocessableEntityError("Invalid address");
+
+    return this.usersRepository.save({ id: userId, address, coordinates: coordinate });
   }
 
   public async findOneBy(param: FindOptionsWhere<User>): Promise<User | null> {

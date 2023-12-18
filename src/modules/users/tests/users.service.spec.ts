@@ -10,7 +10,7 @@ import { User } from "../entities/user.entity";
 import { UsersService } from "../users.service";
 import { UpdateUserLocationDataDto } from "../dto/update-userLocationData.dto";
 
-describe("UsersController", () => {
+describe("UsersService", () => {
   let app: Express;
   let server: Server;
 
@@ -58,8 +58,7 @@ describe("UsersController", () => {
   describe(".updateUserLocationProperties", () => {
     const createUserDto: CreateUserDto = { email: "user@test.com", password: "password" };
     const updateUserLocationDto: UpdateUserLocationDataDto = {
-      address: "test address",
-      coordinates: "52.670925580780214, 10.582320297150432",
+      address: "Nørrebro, Copenhagen, Denmark",
     };
 
     it("should update user with location properties", async () => {
@@ -67,7 +66,20 @@ describe("UsersController", () => {
       const updatedUser = await usersService.updateUserLocation(user.id, updateUserLocationDto);
 
       expect(updatedUser.address).toBe(updateUserLocationDto.address);
-      expect(updatedUser.coordinates).toBe(updateUserLocationDto.coordinates);
+      expect(updatedUser.coordinates.split(",").length).toBe(2);
+    });
+
+    it("should throw UnprocessableEntityError if address coordinates is empty", async () => {
+      const user = await usersService.createUser(createUserDto);
+
+      await usersService
+        .updateUserLocation(user.id, {
+          address: "invalid address",
+        })
+        .catch((error: UnprocessableEntityError) => {
+          expect(error).toBeInstanceOf(UnprocessableEntityError);
+          expect(error.message).toBe("Invalid address");
+        });
     });
   });
 

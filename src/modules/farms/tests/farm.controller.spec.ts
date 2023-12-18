@@ -23,8 +23,7 @@ describe("FarmsController", () => {
   let usersService: UsersService;
   const createFarmDto: CreateFarmDto = {
     name: "Farm 1",
-    address: "Farm 1 address",
-    coordinates: "55.67087112646539, 12.582277381808696",
+    address: "Rebildvej 30",
     size: 100.3,
     yield: 90.4,
   };
@@ -66,7 +65,7 @@ describe("FarmsController", () => {
         id: expect.any(String),
         name: expect.stringContaining(createFarmDto.name) as string,
         address: expect.stringContaining(createFarmDto.address) as string,
-        coordinates: expect.stringContaining(createFarmDto.coordinates) as string,
+        coordinates: expect.any(String),
         size: expect.any(Number),
         yield: expect.any(Number),
         userId: expect.stringContaining(user.id) as string,
@@ -75,26 +74,24 @@ describe("FarmsController", () => {
       });
     });
 
-    it("should throw Internal server error if passed with invalid coordinates", async () => {
+    it("should throw UnprocessableEntityError if address is invalid", async () => {
       await createUser(createUserDto);
       const { token } = await loginUser(createUserDto);
 
-      const res = await agent
+      await agent
         .post("/api/farms")
         .set("Authorization", `Bearer ${token}`)
-        .send({ ...createFarmDto, coordinates: "invalid coordinates" });
-
-      expect(res.statusCode).toBe(500);
-      expect(res.body).toMatchObject({
-        message: "Internal Server Error",
-      });
+        .send({ ...createFarmDto, address: "invalid address" })
+        .catch((error: Error) => {
+          expect(error).toBeInstanceOf(Error);
+          expect(error.message).toBe("Unprocessable Entity");
+        });
     });
   });
 
   describe("GET /farms", () => {
     const updateUserLocationDto: UpdateUserLocationDataDto = {
-      address: "test address",
-      coordinates: "52.670925580780214, 10.582320297150432",
+      address: "Nørrebro, Copenhagen, Denmark",
     };
 
     const createFarm = async (userId: string, farmDto: CreateFarmDto) => farmsService.createFarm(userId, farmDto);

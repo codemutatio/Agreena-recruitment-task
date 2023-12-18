@@ -63,7 +63,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"address\": \"Langebrogade 3F, 3rd Floor, 1411 Copenhagen K, Denmark\",\n    \"coordinates\": \"55.67087112646539, 12.582277381808696\"\n}",
+              "raw": "{\n    \"address\": \"Langebrogade 3F, 3rd Floor, 1411 Copenhagen K, Denmark\"\n }",
               "options": {
                 "raw": {
                   "language": "json"
@@ -92,7 +92,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n    \"name\": \"Farm 1\",\n    \"address\": \"N\u00f8rrebro, Copenhagen, Denmark\",\n    \"coordinates\": \"55.67087112646539, 12.582277381808696\",\n    \"size\": 100.3,\n    \"userId\": \"<User_ID>\",\n    \"yield\": 90.4\n}",
+              "raw": "{\n    \"name\": \"Farm 1\",\n    \"address\": \"N\u00f8rrebro, Copenhagen, Denmark\",\n    \"size\": 100.3,\n    \"yield\": 90.4\n}",
               "options": {
                 "raw": {
                   "language": "json"

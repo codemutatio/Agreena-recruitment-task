@@ -70,12 +70,12 @@ describe("UsersController", () => {
   describe("POST /users/location", () => {
     const createUser = async (userDto: CreateUserDto) => usersService.createUser(userDto);
     const loginUser = async (userDto: CreateUserDto) => authService.login(userDto);
-    const updateUserLocationPropertiesDto: UpdateUserLocationDataDto = {
-      address: "Test Address",
-      coordinates: "52.670925580780214, 10.582320297150432",
-    };
 
     it("should update existing user", async () => {
+      const updateUserLocationPropertiesDto: UpdateUserLocationDataDto = {
+        address: "Nørrebro, Copenhagen, Denmark",
+      };
+
       await createUser(createUserDto);
       const { token } = await loginUser(createUserDto);
 
@@ -88,18 +88,23 @@ describe("UsersController", () => {
       expect(res.text).toEqual("User updated successfully");
     });
 
-    it("should throw Internal server error if passed with invalid coordinates", async () => {
+    it("should throw UnprocessableEntityError if invalid address is passed", async () => {
+      const updateUserLocationPropertiesDto: UpdateUserLocationDataDto = {
+        address: "invalid address",
+      };
+
       await createUser(createUserDto);
       const { token } = await loginUser(createUserDto);
 
       const res = await agent
         .post("/api/users/location")
         .set("Authorization", `Bearer ${token}`)
-        .send({ ...updateUserLocationPropertiesDto, coordinates: "invalid coordinates" });
+        .send({ ...updateUserLocationPropertiesDto });
 
-      expect(res.statusCode).toBe(500);
+      expect(res.statusCode).toBe(422);
       expect(res.body).toMatchObject({
-        message: "Internal Server Error",
+        name: "UnprocessableEntityError",
+        message: "Invalid address",
       });
     });
   });

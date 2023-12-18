@@ -13,6 +13,7 @@ import { FilterBy, GetFarmsQueryDto, SortBy, SortOrder } from "../dto/get-farmsQ
 import { plainToClass } from "class-transformer";
 import { GetFarmDto } from "../dto/get-farms.dto";
 import { UpdateUserLocationDataDto } from "modules/users/dto/update-userLocationData.dto";
+import { UnprocessableEntityError } from "errors/errors";
 
 describe("FarmsService", () => {
   let app: Express;
@@ -23,22 +24,19 @@ describe("FarmsService", () => {
   const createUserDto: CreateUserDto = { email: "user@test.com", password: "password" };
   const createFarm1Dto: CreateFarmDto = {
     name: "Farm 1",
-    address: "Farm 1 address",
-    coordinates: "55.67087112646539, 12.582277381808696",
+    address: "Rebildvej 30",
     size: 100,
     yield: 85.2,
   };
   const createFarm2Dto: CreateFarmDto = {
     name: "Farm 2",
-    address: "Farm 3 address",
-    coordinates: "53.67087112646539, 12.582277381808696",
+    address: "Fælled Alle 9",
     size: 80,
     yield: 45.76,
   };
   const createFarm3Dto: CreateFarmDto = {
     name: "Farm 3",
-    address: "Farm 3 address",
-    coordinates: "52.71087112646539, 10.622277381808696",
+    address: "Martin Reimers Vej 10",
     size: 350.6,
     yield: 180.5,
   };
@@ -68,13 +66,24 @@ describe("FarmsService", () => {
 
       const createdFarm = await farmsService.createFarm(createdUser.id, createFarm1Dto);
       expect(createdFarm).toBeInstanceOf(Farm);
+      expect(createdFarm.coordinates).toBeDefined();
+    });
+
+    it("should throw UnprocessableEntityError if address is invalid", async () => {
+      const createdUser = await usersService.createUser(createUserDto);
+
+      await farmsService
+        .createFarm(createdUser.id, { ...createFarm1Dto, address: "invalid address" })
+        .catch((error: UnprocessableEntityError) => {
+          expect(error).toBeInstanceOf(UnprocessableEntityError);
+          expect(error.message).toBe("Invalid address");
+        });
     });
   });
 
   describe(".getFarms", () => {
     const updateUserLocationDto: UpdateUserLocationDataDto = {
-      address: "test address",
-      coordinates: "52.670925580780214, 10.582320297150432",
+      address: "Nørrebro, Copenhagen, Denmark",
     };
 
     it("should fetch farms with enhanced properties and transformed to GetFarmDto", async () => {
@@ -119,7 +128,7 @@ describe("FarmsService", () => {
       });
 
       const farms = await farmsService.getFarms(updatedUser, getFarmsQueryDto);
-      expect(farms[0].name).toBe(createFarm3Dto.name);
+      expect(farms[0].name).toBe(createFarm1Dto.name);
       expect(farms[0].drivingDistance).toBeDefined();
     });
 

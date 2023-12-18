@@ -23,9 +23,8 @@ export class UsersController {
   public async updateUserLocation(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.user;
-      const { address, coordinates } = req.body as UpdateUserLocationDataDto;
 
-      await this.usersService.updateUserLocation(id, { address, coordinates });
+      await this.usersService.updateUserLocation(id, req.body as UpdateUserLocationDataDto);
       res.status(201).send("User updated successfully");
     } catch (error) {
       next(error);
