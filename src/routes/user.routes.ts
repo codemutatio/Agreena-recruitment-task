@@ -28,8 +28,8 @@ const usersController = new UsersController();
  *      400:
  *        description: Bad request
  */
-
 router.post("/", usersController.create.bind(usersController) as RequestHandler);
+
 /**
  * @openapi
  * '/api/users/location':
