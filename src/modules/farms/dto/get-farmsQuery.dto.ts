@@ -84,7 +84,7 @@ export class GetFarmsQueryDto {
   @IsNumber()
   @Min(0)
   @Max(100)
-  @Transform(({ value }) => parseInt(value as string, 10))
+  @Transform(({ value }) => Math.min(parseInt(value as string, 10), 100))
   public size: number = 100;
 
   @IsOptional()
